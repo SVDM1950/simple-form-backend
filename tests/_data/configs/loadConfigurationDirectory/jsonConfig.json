@@ -1,0 +1,8 @@
+{
+  "testVal": 42,
+  "properties": {
+    "0": 1,
+    "testVal": 28,
+    "bool": true
+  }
+}

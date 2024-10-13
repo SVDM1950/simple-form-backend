@@ -1,0 +1,8 @@
+host: ""
+port: 465
+username: ""
+password: ""
+encryption: "ssl"
+from:
+  email: ""
+  name: "Kontaktformular SVDM 1950 e.V - Rollkunstlauf"
