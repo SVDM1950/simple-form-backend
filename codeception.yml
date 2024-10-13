@@ -1,0 +1,18 @@
+namespace: Tests
+support_namespace: Support
+actor_suffix: Tester
+
+settings:
+    shuffle: true
+    lint: true
+
+paths:
+    tests: tests
+    output: tests/_output
+    support: tests/_support
+    data: tests/_data
+    envs: tests/_envs
+
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
