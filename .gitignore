@@ -1,0 +1,5 @@
+.idea/
+dist/
+vendor/
+var/log/*
+.DS_Store
