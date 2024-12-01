@@ -1,7 +1,7 @@
 {
     "name": "svdm1950/simple-form-backend",
     "description": "PHP Mail Backend for simple form Publii plugins",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "project",
     "license": "MIT",
     "homepage": "https://github.com/svdm1950/simple-contact-form-backend",

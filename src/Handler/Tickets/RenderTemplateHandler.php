@@ -38,10 +38,10 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
                 'strict_callables' => true,
                 'pragmas' => [Mustache_Engine::PRAGMA_FILTERS],
                 'helpers' => [
-                    'date' => fn(string $date) => (new DateTime($date))->format('d.m.Y H:i'),
+                    'date' => fn(string $date) => (new DateTime($date))->format('d.m.Y'),
                     'time' => fn(string $date) => (new DateTime($date))->format('H:i'),
                     'datetime' => fn(string $date) => (new DateTime($date))->format('d.m.Y H:i'),
-                    'week' => fn(string $date) => (new DateTime($date . ' - 1 week'))->format('d.m.Y H:i'),
+                    'lastPayDay' => fn(string $date) => (new DateTime($date . ' - 4 days'))->format('d.m.Y H:i'),
                     'currency' => fn(string $value) => number_format((float) $value, 2, ',', '.'),
                 ]
             ));
