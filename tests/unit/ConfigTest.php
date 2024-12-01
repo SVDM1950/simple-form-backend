@@ -136,6 +136,17 @@ class ConfigTest extends Unit
         $this->assertEquals(1, $this->config->get('prefix.subConfig.subSubConfig.work.hours-per-day'));
     }
 
+    #[Test]
+    public function replaceEnvVars()
+    {
+        $_ENV["TEST"] = 'test';
+
+        $this->config->loadConfigurationDirectory(codecept_data_dir('configs/replaceEnvVars'));
+
+        $this->assertEquals("test", $this->config->get('test.test'));
+    }
+
+
     public static function configFilesProvider(): array
     {
         return [

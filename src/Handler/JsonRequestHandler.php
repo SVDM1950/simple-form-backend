@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class JsonRequestHandler implements RequestHandler
 {
+    /**
+     * @throws InvalidJsonDataException
+     */
     public function __invoke(Request $request, Response $response, RoutingHandler $handler): Response
     {
         try {
@@ -20,25 +23,7 @@ class JsonRequestHandler implements RequestHandler
             if (\is_array($data)) {
                 $request->request->replace($data);
             }
-        } catch (JsonException $exception) {
-//            $this->logger()->error("Invalid JSON data: {$exception->getMessage()}");
-
-//            return $response
-//                ->setStatusCode(Response::HTTP_BAD_REQUEST)
-//                ->setData([
-//                    'type' => 'general',
-//                    'errors' => ['Invalid JSON data']
-//                ]);
-            throw new InvalidJsonDataException([$exception->getMessage()], $exception->getCode(), $exception);
-        } catch (Exception $exception) {
-//            $this->logger()->error("Invalid JSON data: {$exception->getMessage()}");
-
-//            return $response
-//                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-//                ->setData([
-//                    'type' => 'general',
-//                    'errors' => ['Invalid JSON data']
-//                ]);
+        } catch (JsonException|Exception $exception) {
             throw new InvalidJsonDataException([$exception->getMessage()], $exception->getCode(), $exception);
         }
 

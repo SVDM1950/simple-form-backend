@@ -2,8 +2,8 @@
 
 namespace App\InternalError\Http;
 
-use App\InternalError\InternalCodes;
 use App\InternalError\AbstractInternalError;
+use App\InternalError\InternalCodes;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResponseMappingFailed extends AbstractInternalError

@@ -23,7 +23,7 @@ class ValidationHandler implements RequestHandler, ContainerAware
     {
         $data = $request->request->all();
 
-        $validator = new Validator();
+        $validator = $this->validator();
 
         $ruleSet = [
             'name' => 'required|min:3',
@@ -36,7 +36,10 @@ class ValidationHandler implements RequestHandler, ContainerAware
         $validation->validate();
 
         if ($validation->fails()) {
-            throw new ValidationException($validation->errors()->toArray(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            throw new ValidationException(
+                $validation->errors()->toArray(),
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
         }
 
         return $handler->handle($request, $response);
@@ -47,4 +50,8 @@ class ValidationHandler implements RequestHandler, ContainerAware
         return $this->container[Config::class];
     }
 
+    protected function validator(): Validator
+    {
+        return $this->container[Validator::class];
+    }
 }

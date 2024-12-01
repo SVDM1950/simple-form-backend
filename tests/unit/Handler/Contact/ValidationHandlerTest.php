@@ -7,11 +7,16 @@ use App\Handler\Exception\ValidationException;
 use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
+use App\Validation\ValidatorFactory;
 use Codeception\Attribute\DataProvider;
 use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use Pimple\Container;
+use Rakit\Validation\RuleQuashException;
+use Rakit\Validation\Validator;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,10 +66,17 @@ class ValidationHandlerTest extends Unit
 
         $this->expectException(ValidationException::class);
 
+        $container = $this->getContainer();
+
         $handler = new ValidationHandler();
+        $handler->setContainer($container);
         $handler($request, $response, $routingHandler);
     }
 
+    /**
+     * @throws Exception
+     * @throws ValidationException
+     */
     public function testValidDataPasses()
     {
         $request = $this->createMock(Request::class);
@@ -80,11 +92,29 @@ class ValidationHandlerTest extends Unit
         $routingHandler = $this->createMock(RoutingHandler::class);
         $routingHandler->expects($this->once())->method('handle');
 
+        $container = $this->getContainer();
+
         $handler = new ValidationHandler();
+        $handler->setContainer($container);
         $actualResponse = $handler($request, $response, $routingHandler);
 
         $this->assertInstanceOf(Response::class, $actualResponse);
         $this->assertEquals(0, $actualResponse->getStatusCode());
+    }
+
+    /**
+     * @return Container&MockObject
+     * @throws Exception
+     * @throws RuleQuashException
+     */
+    public function getContainer(): Container&MockObject
+    {
+        $container = $this->createMock(Container::class);
+        $container->method('offsetGet')->willReturnMap([
+            [Validator::class, (new ValidatorFactory($container))()]
+        ]);
+
+        return $container;
     }
 
     protected function invalidData(): array

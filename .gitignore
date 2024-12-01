@@ -3,3 +3,4 @@ dist/
 vendor/
 var/log/*
 .DS_Store
+.env.*

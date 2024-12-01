@@ -16,9 +16,14 @@ class ReCaptchaFactory implements ContainerAware
     {
     }
 
-    public function __invoke(string $section): ReCaptcha
+    public function __invoke(string $section): ?ReCaptcha
     {
         $config = $this->container[Config::class];
+
+        $enabled = filter_var($config->get("recaptcha.{$section}.enabled"), FILTER_VALIDATE_BOOLEAN);
+        if (!$enabled) {
+            return null;
+        }
 
         return (new Recaptcha($config->get("recaptcha.{$section}.siteSecret")))
             ->setExpectedHostname($config->get("recaptcha.{$section}.siteUrl"))

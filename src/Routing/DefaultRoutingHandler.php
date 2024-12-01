@@ -19,6 +19,9 @@ class DefaultRoutingHandler implements RoutingHandler
     {
     }
 
+    /**
+     * @throws InvalidRequestHandlerException
+     */
     public function handle(Request $request, Response $response): Response
     {
         if (count($this->stack) === 0) {
@@ -32,12 +35,19 @@ class DefaultRoutingHandler implements RoutingHandler
         ]);
     }
 
+    /**
+     * @throws InvalidRequestHandlerException
+     */
     protected function shiftStack(): callable
     {
         $item = array_shift($this->stack);
 
         if (is_string($item)) {
             $item = new $item();
+        }
+
+        if(is_array($item)) {
+            $item = new $item["class"](...$item["arguments"]);
         }
 
         if (!$item instanceof RequestHandler) {

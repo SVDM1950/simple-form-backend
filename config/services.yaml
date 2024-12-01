@@ -17,6 +17,14 @@ router:
 snowflake:
   class: Godruoyi\Snowflake\Snowflake
 
+validator:
+  class: Rakit\Validation\Validator
+  factory: App\Validation\ValidatorFactory
+
+mustache:
+  class: Mustache_Engine
+  factory: App\Mustache\MustacheFactory
+
 recaptcha.contact:
   id: 'recaptcha.contact'
   class: ReCaptcha\ReCaptcha

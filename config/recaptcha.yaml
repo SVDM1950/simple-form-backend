@@ -1,15 +1,15 @@
 contact:
-  enabled: true
+  enabled: "${RECAPTCHA_CONTACT_ENABLED}"
   parameterName: "g-recaptcha-response"
-  siteKey: ""
-  siteSecret: ""
-  siteUrl: ""
+  siteKey: "${RECAPTCHA_CONTACT_SITEKEY}"
+  siteSecret: "${RECAPTCHA_CONTACT_SITESECRET}"
+  siteUrl: "${RECAPTCHA_CONTACT_SITEURL}"
   actionName: "CONTACT_FORM"
 
 tickets:
-  enabled: true
+  enabled: "${RECAPTCHA_TICKETS_ENABLED}"
   parameterName: "g-recaptcha-response"
-  siteKey: ""
-  siteSecret: ""
-  siteUrl: ""
+  siteKey: "${RECAPTCHA_TICKETS_SITEKEY}"
+  siteSecret: "${RECAPTCHA_TICKETS_SITESECRET}"
+  siteUrl: "${RECAPTCHA_TICKETS_SITEURL}"
   actionName: "TICKETS_FORM"

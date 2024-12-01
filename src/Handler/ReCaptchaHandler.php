@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handler\Tickets;
+namespace App\Handler;
 
 use App\Config;
 use App\Handler\Exception\RecaptchaException;
@@ -18,36 +18,19 @@ class ReCaptchaHandler implements RequestHandler, ContainerAware
 {
     use ContainerAwareTrait;
 
+    public function __construct(protected string $section)
+    {
+    }
+
     /**
      * @throws ValidationException
      * @throws RecaptchaException
      */
     public function __invoke(Request $request, Response $response, RoutingHandler $handler): Response
     {
-        if ($this->config()->get('recaptcha.enabled') && $this->config()->get('recaptcha.siteKey')) {
+        if ($this->config()->get("recaptcha.{$this->section}.enabled") && $this->config()->get("recaptcha.{$this->section}.siteKey")) {
             $this->validate($request);
             $this->verify($request);
-//            try {
-//                $this->validateRecaptcha($request);
-//            } catch (RecaptchaException $exception) {
-//                $this->logger()->error("Invalid reCAPTCHA data: {$exception->getMessage()}");
-//
-//                return $response
-//                    ->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-//                    ->setData([
-//                        'type' => 'recaptcha',
-//                        'errors' => ['Invalid reCAPTCHA data']
-//                    ]);
-//            } catch (Exception $exception) {
-//                $this->logger()->error("Invalid reCAPTCHA data: {$exception->getMessage()}");
-//
-//                return $response
-//                    ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-//                    ->setData([
-//                        'type' => 'recaptcha',
-//                        'errors' => ['Invalid reCAPTCHA data']
-//                    ]);
-//            }
         }
 
         return $handler->handle($request, $response);
@@ -84,7 +67,7 @@ class ReCaptchaHandler implements RequestHandler, ContainerAware
 
     protected function getParameterName(): string
     {
-        return $this->config()->get('recaptcha.parameterName');
+        return $this->config()->get("recaptcha.{$this->section}.parameterName");
     }
 
     protected function config(): Config
@@ -94,6 +77,6 @@ class ReCaptchaHandler implements RequestHandler, ContainerAware
 
     protected function reCaptcha(): ReCaptcha
     {
-        return $this->container['recaptcha.tickets'];
+        return $this->container["recaptcha.{${$this->section}}"];
     }
 }

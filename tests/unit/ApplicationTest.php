@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Config;
 use App\Application;
+use App\Config;
 use Codeception\Attribute\Before;
 use Codeception\Attribute\Skip;
 use Codeception\Test\Unit;

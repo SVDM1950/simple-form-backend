@@ -2,21 +2,11 @@
 
 namespace App;
 
-use App\Handler\Exception\RecaptchaException;
-use App\Handler\Exception\ValidationException;
+use App\Exception\StopException;
 use App\Routing\Router;
 use Exception;
-use FilterGuard\FilterGuard;
-use JsonException;
-use Mustache_Engine;
-use Mustache_Exception;
-use Mustache_Loader_FilesystemLoader;
-use PHPMailer\PHPMailer\Exception as PHPMailerException;
-use PHPMailer\PHPMailer\PHPMailer;
 use Pimple\Container;
 use Psr\Log\LoggerInterface;
-use Rakit\Validation\Validator;
-use ReCaptcha\ReCaptcha;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,7 +30,12 @@ class Application
         }
 
         if ($this->config()->has('services')) {
-            $this->registerServices();
+            try {
+                $this->registerServices();
+            } catch (Exception $exception) {
+                $this->handleException($exception);
+                throw new StopException();
+            }
         }
 
         if ($this->config()->has('routes')) {
@@ -50,6 +45,7 @@ class Application
 
     /**
      * Register services in the container
+     * @throws Exception
      */
     protected function registerServices(): void
     {
@@ -60,11 +56,27 @@ class Application
 
             if (array_key_exists('factory', $service)) {
                 $factoryClass = $service['factory'];
-                $this->container[$serviceId] = (new $factoryClass($this->container))(...$arguments);
+                try {
+                    $this->container[$serviceId] = (new $factoryClass($this->container))(...$arguments);
+                } catch (Exception $exception) {
+                    throw new Exception(
+                        "Service '$serviceId' could not be created: {$exception->getMessage()}",
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        $exception
+                    );
+                }
                 continue;
             }
 
-            $this->container[$serviceId] = new $className(...$arguments);
+            try {
+                $this->container[$serviceId] = new $className(...$arguments);
+            } catch (Exception $exception) {
+                throw new Exception(
+                    "Service '$serviceId' could not be created: {$exception->getMessage()}",
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    $exception
+                );
+            }
         }
     }
 
@@ -115,264 +127,57 @@ class Application
         return $response;
     }
 
-    public function container(): Container
+    /**
+     * Handle an exception and return a response
+     */
+    public function handleException(\Throwable $throwable): Response
     {
-        return $this->container;
-    }
-
-    public function config(): Config
-    {
-        return $this->container[Config::class];
-    }
-
-    public function logger(): LoggerInterface
-    {
-        return $this->container[$this->config()->get('services.logger.class')];
-    }
-
-    public function router(): Router
-    {
-        return $this->container[$this->config()->get('services.router.class')];
-    }
-
-
-    protected function handle_old(Request $request): Response
-    {
-        $response = new JsonResponse(null, status: Response::HTTP_ACCEPTED);;
+        $response = new JsonResponse(null, status: Response::HTTP_INTERNAL_SERVER_ERROR);
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'POST');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type');
         $response->headers->set('Allow', 'POST');
 
-        if ($request->isMethod(Request::METHOD_OPTIONS)) {
-            return $response->setStatusCode(Response::HTTP_OK);
+        $response = $this->router()->handleCaughtThrowable($throwable, $response);
+
+        if (ob_get_length()) {
+            @ob_end_clean(); // remove every output, so we have a clean response
         }
 
-        if (!$request->isMethod(Request::METHOD_POST)) {
-            $this->logger()->error("HTTP method '{$request->getMethod()}' not allowed");
+        $response->send();
 
-            return $response
-                ->setStatusCode(Response::HTTP_METHOD_NOT_ALLOWED)
-                ->setData([
-                    'type' => 'general',
-                    'errors' => ['Method not allowed']
-                ]);
-        }
-
-        try {
-            $data = \json_decode((string)$request->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-            if (\is_array($data)) {
-                $request->request->replace($data);
-            }
-        } catch (JsonException $exception) {
-            $this->logger()->error("Invalid JSON data: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_BAD_REQUEST)
-                ->setData([
-                    'type' => 'general',
-                    'errors' => ['Invalid JSON data']
-                ]);
-        } catch (Exception $exception) {
-            $this->logger()->error("Invalid JSON data: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                ->setData([
-                    'type' => 'general',
-                    'errors' => ['Invalid JSON data']
-                ]);
-        }
-
-        try {
-            $this->validate($request);
-        } catch (ValidationException $exception) {
-            $this->logger()->error("Invalid data: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-                ->setData([
-                    'type' => 'validation',
-                    'errors' => $this->transformValidationErrors($exception)
-                ]);
-        } catch (Exception $exception) {
-            $this->logger()->error("Invalid data: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                ->setData([
-                    'type' => 'general',
-                    'errors' => ['Invalid data']
-                ]);
-        }
-
-        if ($this->config()->get('recaptcha.siteKey')) {
-            try {
-                $this->validateRecaptcha($request);
-            } catch (RecaptchaException $exception) {
-                $this->logger()->error("Invalid reCAPTCHA data: {$exception->getMessage()}");
-
-                return $response
-                    ->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-                    ->setData([
-                        'type' => 'recaptcha',
-                        'errors' => ['Invalid reCAPTCHA data']
-                    ]);
-            } catch (Exception $exception) {
-                $this->logger()->error("Invalid reCAPTCHA data: {$exception->getMessage()}");
-
-                return $response
-                    ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                    ->setData([
-                        'type' => 'recaptcha',
-                        'errors' => ['Invalid reCAPTCHA data']
-                    ]);
-            }
-        }
-
-        try {
-            $mustache = new Mustache_Engine(array(
-                'entity_flags' => ENT_QUOTES,
-                # 'cache' => dirname(__FILE__).'/../var/cache/mustache',
-                'loader' => new Mustache_Loader_FilesystemLoader('templates'),
-                'partials_loader' => new Mustache_Loader_FilesystemLoader('templates/partials'),
-                # 'logger' => $this->logger(),
-                'charset' => 'UTF-8',
-                'strict_callables' => true,
-            ));
-            $template = $mustache->loadTemplate('contact-form');
-            $content = $template->render((object)[
-                'name' => FilterGuard::sanitizeString($request->get('name')),
-                'subject' => FilterGuard::sanitizeString($request->get('subject')),
-                'message' => FilterGuard::sanitizeString($request->get('message')),
-            ]);
-        } catch (Mustache_Exception $exception) {
-            $this->logger()->error("Template render error: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                ->setData([
-                    'type' => 'general',
-                    'errors' => ['Template render error']
-                ]);
-        }
-
-        try {
-            $mailer = $this->getMailer();
-
-            // Sender and recipient settings
-            $mailer->setFrom($this->config()->get('mail.from.email'), FilterGuard::sanitizeString($this->config()->get('mail.from.name')));
-            $mailer->addBCC($this->config()->get('mail.from.email'), FilterGuard::sanitizeString($this->config()->get('mail.from.name')));
-            $mailer->addAddress($request->get('email'), FilterGuard::sanitizeString($request->get('name')));
-
-            // Sending plain text email
-            $mailer->isHTML(false); // Set email format to plain text
-            $mailer->Subject = FilterGuard::sanitizeString($this->config()->get('mail.subject'));
-            $mailer->Body = $content;
-
-            if (!$mailer->send()) {
-                $this->logger()->error("Message could not be sent. Mailer Error: {$mailer->ErrorInfo}");
-
-                return $response
-                    ->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
-                    ->setData([
-                        'type' => 'mail',
-                        'errors' => ['Message could not be sent']
-                    ]);
-            }
-        } catch (PHPMailerException $exception) {
-            $this->logger()->error("Message could not be sent. Mailer Error: {$exception->getMessage()}");
-
-            return $response
-                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)
-                ->setData([
-                    'type' => 'mail',
-                    'errors' => ['Message could not be sent']
-                ]);
-        }
-
-        return $response->setStatusCode(Response::HTTP_NO_CONTENT);
+        return $response;
     }
 
     /**
-     * @throws ValidationException
+     * Get the container
      */
-    protected function validate(Request $request): void
+    public function container(): Container
     {
-        $data = $request->request->all();
-
-        $validator = new Validator();
-
-        $ruleSet = [
-            'name' => 'required|min:3',
-            'email' => 'required|email',
-            'subject' => 'required|min:10',
-            'message' => 'required|min:10',
-        ];
-
-        if ($this->config()->get('recaptcha.siteKey')) {
-            $ruleSet[$this->config()->get('recaptcha.parameterName')] = 'required';
-        }
-
-        $validation = $validator->make($data, $ruleSet);
-        $validation->validate();
-
-        if ($validation->fails()) {
-            throw new ValidationException($validation->errors()->toArray(), Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        return $this->container;
     }
 
-    protected function validateRecaptcha(Request $request): void
+    /**
+     * Get the config class object
+     */
+    public function config(): Config
     {
-        $token = $request->request->get($this->config()->get('recaptcha.parameterName'));
-        $remoteIp = $request->getClientIp();
-
-        $recaptcha = new ReCaptcha($this->config()->get('recaptcha.siteSecret'));
-        $response = $recaptcha
-            ->setExpectedHostname($this->config()->get('recaptcha.siteUrl'))
-            ->setExpectedAction($this->config()->get('recaptcha.actionName'))
-            ->verify($token, $remoteIp);
-
-        if (!$response->isSuccess()) {
-            throw new RecaptchaException($response->getErrorCodes());
-        }
+        return $this->container[Config::class];
     }
 
-    protected function getMailer(): PHPMailer
+    /**
+     * Get the logger class object
+     */
+    public function logger(): LoggerInterface
     {
-        $phpMailer = new PHPMailer(true);
-        $phpMailer->isSMTP();
-        $phpMailer->SMTPAuth = true;
-        $phpMailer->Host = $this->config()->get('mail.host');
-        $phpMailer->Username = $this->config()->get('mail.username');
-        $phpMailer->Password = $this->config()->get('mail.password');
-        $phpMailer->SMTPSecure = $this->config()->get('mail.encryption');
-        $phpMailer->Port = $this->config()->get('mail.port');
-        $phpMailer->CharSet = PHPMailer::CHARSET_UTF8;
-
-        return $phpMailer;
+        return $this->container[$this->config()->get('services.logger.class')];
     }
 
-    protected function transformValidationErrors(ValidationException $exception): array
+    /**
+     * Get the router class object
+     */
+    public function router(): Router
     {
-        $messages = [];
-        foreach ($exception->getErrors()->toArray() as $key => $errors) {
-            $messages[$key] = [];
-            foreach (array_keys($errors) as $error) {
-                $messages[$key][] = match ($error) {
-                    'required' => 'required',
-                    'min'      => 'length',
-                    'email'    => 'invalid',
-                    default    => throw new \RuntimeException("Unknown error: $error"),
-                };
-            }
-
-            if (count($messages[$key]) >= 1) {
-                $messages[$key] = array_shift($messages[$key]);
-            }
-        }
-
-        return $messages;
+        return $this->container[$this->config()->get('services.router.class')];
     }
 }
