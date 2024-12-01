@@ -1,8 +1,21 @@
-host: ""
-port: 465
-username: ""
-password: ""
-encryption: "ssl"
-from:
-  email: ""
-  name: "Kontaktformular SVDM 1950 e.V - Rollkunstlauf"
+contact:
+    host: ""
+    port: 465
+    username: ""
+    password: ""
+    encryption: "ssl"
+    from:
+      email: ""
+      name: "Kontaktformular SVDM 1950 e.V - Rollkunstlauf"
+    subject: "Nachricht über Kontaktformular"
+
+tickets:
+  host: ""
+  port: 465
+  username: ""
+  password: ""
+  encryption: "ssl"
+  from:
+    email: ""
+    name: "Weihnachtsmärchen"
+  subject: "Kartenbestellung Weihnachtsmärchen"

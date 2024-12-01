@@ -1,0 +1,28 @@
+"202412081600":
+  name: 'Margon Arena (PREMIERE)'
+  datetime: '2024-12-08 16:00'
+  sold: false
+"202412090900":
+  name: 'Margon Arena'
+  datetime: '2024-12-09 09:00'
+  sold: false
+"202412091045":
+  name: 'Margon Arena'
+  datetime: '2024-12-09 10:45'
+  sold: false
+"202412151430":
+  name: 'Lößnitzsporthalle'
+  datetime: '2024-12-15 14:30'
+  sold: false
+"202412151630":
+  name: 'Lößnitzsporthalle'
+  datetime: '2024-12-15 16:30'
+  sold: false
+"202412160900":
+  name: 'Lößnitzsporthalle'
+  datetime: '2024-12-16 09:00'
+  sold: true
+"202412161045":
+  name: 'Lößnitzsporthalle'
+  datetime: '2024-12-16 10:45'
+  sold: false

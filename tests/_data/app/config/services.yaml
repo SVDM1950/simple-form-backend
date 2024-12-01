@@ -1,0 +1,46 @@
+logger:
+  class: Katzgrau\KLogger\Logger
+  arguments:
+    - '%logger.path%'
+    - '%logger.level%'
+
+router:
+  class: App\Routing\Router
+  arguments:
+    - '@container'
+  route_parser: FastRoute\RouteParser\Std
+  data_generator: FastRoute\DataGenerator\GroupCountBased
+  dispatcher: FastRoute\Dispatcher\GroupCountBased
+  handler: App\Routing\Handler
+  response: Symfony\Component\HttpFoundation\JsonResponse
+
+snowflake:
+  class: Godruoyi\Snowflake\Snowflake
+
+recaptcha.contact:
+  id: 'recaptcha.contact'
+  class: ReCaptcha\ReCaptcha
+  factory: App\ReCaptcha\ReCaptchaFactory
+  arguments:
+    - 'contact'
+
+phpmailer.contact:
+  id: 'phpmailer.contact'
+  class: PHPMailer\PHPMailer\PHPMailer
+  factory: App\PHPMailer\PHPMailerFactory
+  arguments:
+    - 'contact'
+
+recaptcha.tickets:
+  id: 'recaptcha.tickets'
+  class: ReCaptcha\ReCaptcha
+  factory: App\ReCaptcha\ReCaptchaFactory
+  arguments:
+    - 'tickets'
+
+phpmailer.tickets:
+  id: 'phpmailer.tickets'
+  class: PHPMailer\PHPMailer\PHPMailer
+  factory: App\PHPMailer\PHPMailerFactory
+  arguments:
+    - 'tickets'

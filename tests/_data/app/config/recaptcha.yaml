@@ -1,15 +1,15 @@
 contact:
   enabled: true
   parameterName: "g-recaptcha-response"
-  siteKey: ""
-  siteSecret: ""
-  siteUrl: ""
+  siteKey: "siteKey"
+  siteSecret: "siteSecret"
+  siteUrl: "rollkunstlauf.org"
   actionName: "CONTACT_FORM"
 
 tickets:
   enabled: true
   parameterName: "g-recaptcha-response"
-  siteKey: ""
-  siteSecret: ""
-  siteUrl: ""
+  siteKey: "siteKey"
+  siteSecret: "siteSecret"
+  siteUrl: "rollkunstlauf.org"
   actionName: "TICKETS_FORM"
