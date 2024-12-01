@@ -4,10 +4,14 @@ contact:
   handlers:
     - App\Handler\EmptyBodyRequestHandler
     - App\Handler\JsonRequestHandler
-    - App\Handler\Contact\ReCaptchaHandler
+    - class: App\Handler\ReCaptchaHandler
+      arguments:
+        - 'contact'
     - App\Handler\Contact\ValidationHandler
     - App\Handler\Contact\RenderTemplateHandler
-    - App\Handler\Contact\MailHandler
+    - class: App\Handler\MailHandler
+      arguments:
+        - 'contact'
     - App\Handler\Contact\FinishHandler
 
 tickets:
@@ -16,10 +20,14 @@ tickets:
   handlers:
     - App\Handler\EmptyBodyRequestHandler
     - App\Handler\JsonRequestHandler
-    - App\Handler\Tickets\ReCaptchaHandler
+    - class: App\Handler\ReCaptchaHandler
+      arguments:
+        - 'tickets'
     - App\Handler\Tickets\ValidationHandler
     - App\Handler\Tickets\RenderTemplateHandler
-    - App\Handler\Tickets\MailHandler
+    - class: App\Handler\MailHandler
+      arguments:
+        - 'tickets'
     - App\Handler\Tickets\FinishHandler
 
 tickets_events:

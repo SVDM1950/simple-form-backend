@@ -9,9 +9,12 @@ use Codeception\Test\Unit;
 use FastRoute\DataGenerator\GroupCountBased as DefaultDataGenerator;
 use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
 use FastRoute\RouteParser\Std as DefaultRouteParser;
+use Katzgrau\KLogger\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use Pimple\Container;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -26,7 +29,8 @@ class RouterTest extends Unit
 {
     protected UnitTester $tester;
 
-    public function testHasHandleRequestMethod()
+    #[Test]
+    public function hasHandleRequestMethod()
     {
         $this->assertTrue(method_exists(Router::class, 'handleRequest'));
     }
@@ -34,21 +38,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestWithoutRoutesWillReturnErrorResponse()
+    #[Test]
+    public function handleRequestWithoutRoutesWillReturnErrorResponse()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -67,21 +60,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestWithInvalidRequestHandlerWillReturnErrorResponse()
+    #[Test]
+    public function handleRequestWithInvalidRequestHandlerWillReturnErrorResponse()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -104,21 +86,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestWithRouteNotFoundWillReturnErrorResponse()
+    #[Test]
+    public function handleRequestWithRouteNotFoundWillReturnErrorResponse()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -139,21 +110,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestWithMethodNotAllowedWillReturnErrorResponse()
+    #[Test]
+    public function handleRequestWithMethodNotAllowedWillReturnErrorResponse()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -174,21 +134,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestPasses()
+    #[Test]
+    public function handleRequestPasses()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -208,21 +157,10 @@ class RouterTest extends Unit
     /**
      * @throws Exception
      */
-    public function testHandleRequestHandlesOptionsHttpMethod()
+    #[Test]
+    public function handleRequestHandlesOptionsHttpMethod()
     {
-        $config = $this->createMock(Config::class);
-        $config->method('get')->willReturnMap(
-            [
-                ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
-                ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
-                ['router.response', JsonResponse::class, JsonResponse::class],
-                ['router.dispatcher', Dispatcher::class, Dispatcher::class],
-                ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
-            ]
-        );
-
-        $container = $this->createMock(Container::class);
-        $container->method('offsetGet')->with(Config::class)->willReturn($config);
+        $container = $this->getContainer();
 
         $request = $this->createMock(Request::class);
         $request->attributes = new ParameterBag();
@@ -236,5 +174,30 @@ class RouterTest extends Unit
 
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals('{}', $response->getContent());
+    }
+
+    /**
+     * @return Container&MockObject
+     * @throws Exception
+     */
+    public function getContainer(): Container&MockObject
+    {
+        $config = $this->createMock(Config::class);
+        $config->method('get')->willReturnMap([
+            ['router.route_parser', DefaultRouteParser::class, DefaultRouteParser::class],
+            ['router.data_generator', DefaultDataGenerator::class, DefaultDataGenerator::class],
+            ['router.response', JsonResponse::class, JsonResponse::class],
+            ['router.dispatcher', Dispatcher::class, Dispatcher::class],
+            ['router.handler', DefaultRoutingHandler::class, DefaultRoutingHandler::class],
+            ['services.logger.class', null, Logger::class]
+        ]);
+
+        $container = $this->createMock(Container::class);
+        $container->method('offsetGet')->willReturnMap([
+            [Config::class, $config],
+            [Logger::class, $this->createMock(Logger::class)]
+        ]);
+
+        return $container;
     }
 }

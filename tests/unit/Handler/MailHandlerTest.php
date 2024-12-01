@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Unit\Handler\Contact;
+namespace Tests\Unit\Handler;
 
 use App\Config;
-use App\Handler\Contact\MailHandler;
 use App\Handler\Exception\MailerException;
+use App\Handler\MailHandler;
 use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
@@ -49,11 +49,17 @@ class MailHandlerTest extends Unit
         $this->assertTrue(method_exists(MailHandler::class, 'setContainer'));
     }
 
+    /**
+     * @throws Exception
+     * @throws ReflectionException
+     * @throws \JsonException
+     */
     public function testPHPMailerWillThrowException()
     {
         $request = $this->createMock(Request::class);
 
         $response = $this->createMock(Response::class);
+        $response->method('getContent')->willReturn('{"message":"Test-Nachricht"}');
 
         $routingHandler = $this->createMock(RoutingHandler::class);
         $routingHandler->expects($this->never())->method('handle');
@@ -69,14 +75,26 @@ class MailHandlerTest extends Unit
         $handler = $this->createMockWithoutMethods(MailHandler::class, ['__invoke']);
         $handler->method('config')->willReturn($config);
         $handler->method('mailer')->willReturn($phpMailer);
-        $handler($request, $response, $routingHandler);
+
+        $reflection = new \ReflectionClass($handler);
+        $reflection->getProperty('section')->setValue($handler, 'contact');
+
+        $actualResponse = $handler($request, $response, $routingHandler);
+
+        $this->assertEquals(null, $actualResponse->getContent());
     }
 
+    /**
+     * @throws Exception
+     * @throws ReflectionException
+     * @throws \JsonException
+     */
     public function testPHPMailerCanNotSendMail()
     {
         $request = $this->createMock(Request::class);
 
         $response = $this->createMock(Response::class);
+        $response->method('getContent')->willReturn('{"message":"Test-Nachricht"}');
 
         $routingHandler = $this->createMock(RoutingHandler::class);
         $routingHandler->expects($this->never())->method('handle');
@@ -92,19 +110,27 @@ class MailHandlerTest extends Unit
         $handler = $this->createMockWithoutMethods(MailHandler::class, ['__invoke']);
         $handler->method('config')->willReturn($config);
         $handler->method('mailer')->willReturn($phpMailer);
-        $handler($request, $response, $routingHandler);
+
+        $reflection = new \ReflectionClass($handler);
+        $reflection->getProperty('section')->setValue($handler, 'contact');
+
+        $actualResponse = $handler($request, $response, $routingHandler);
+
+        $this->assertEquals(null, $actualResponse->getContent());
     }
 
     /**
      * @throws MailerException
      * @throws Exception
      * @throws ReflectionException
+     * @throws \JsonException
      */
     public function testPHPMailerCanSendMail()
     {
         $request = $this->createMock(Request::class);
 
         $response = $this->createMock(Response::class);
+        $response->method('getContent')->willReturn('{"message":"Test-Nachricht"}');
 
         $routingHandler = $this->createMock(RoutingHandler::class);
         $routingHandler->expects($this->once())->method('handle');
@@ -118,11 +144,15 @@ class MailHandlerTest extends Unit
         $handler = $this->createMockWithoutMethods(MailHandler::class, ['__invoke']);
         $handler->method('config')->willReturn($config);
         $handler->method('mailer')->willReturn($phpMailer);
+
+        $reflection = new \ReflectionClass($handler);
+        $reflection->getProperty('section')->setValue($handler, 'contact');
+
         $actualResponse = $handler($request, $response, $routingHandler);
 
         $this->assertInstanceOf(Response::class, $actualResponse);
         $this->assertEquals(0, $actualResponse->getStatusCode());
-        $this->assertEquals($response->getContent(), $actualResponse->getContent());
+        $this->assertEquals(null, $actualResponse->getContent());
     }
 
     /**

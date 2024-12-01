@@ -118,6 +118,8 @@ class Config extends Repository
         $configKey = $configPrefix . $file->getBasename(self::CONFIG_SEPARATOR . $file->getExtension());
 
         $this->set($configKey, $this->loadFile($file));
+
+        $this->replaceEnvVars($configKey);
     }
 
     /**
@@ -158,5 +160,22 @@ class Config extends Repository
             'json'        => json_decode(file_get_contents($file->getPathname()), flags: JSON_THROW_ON_ERROR | JSON_OBJECT_AS_ARRAY),
             default       => throw new InvalidArgumentException('Unexpected fileType. Got ' . $file->getExtension())
         };
+    }
+
+    /**
+     * Replace all env vars in config with their values
+     */
+    protected function replaceEnvVars(string $configKey): void
+    {
+        $config = $this->get($configKey);
+        if (is_array($config)) {
+            foreach ($config as $key => $value) {
+                if (is_array($value)) {
+                    $this->replaceEnvVars($configKey . self::CONFIG_SEPARATOR . $key);
+                } elseif (is_string($value) && \preg_match('/^\$\{(.+)\}$/', $value, $matches)) {
+                    $this->set($configKey . self::CONFIG_SEPARATOR . $key, $_ENV[$matches[1]] ?? $matches[0]);
+                }
+            }
+        }
     }
 }

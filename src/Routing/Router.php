@@ -15,6 +15,7 @@ use FastRoute\Dispatcher\GroupCountBased as Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as DefaultRouteParser;
 use Pimple\Container;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,6 +92,11 @@ class Router extends RouteCollector
         return $this->container[Config::class];
     }
 
+    public function logger(): LoggerInterface
+    {
+        return $this->container[$this->config()->get('services.logger.class')];
+    }
+
     /**
      * Get the response class name
      */
@@ -141,9 +147,10 @@ class Router extends RouteCollector
     /**
      * Handle caught throwable
      */
-    protected function handleCaughtThrowable(Throwable $throwable, Response $response): Response
+    public function handleCaughtThrowable(Throwable $throwable, Response $response): Response
     {
         $throwable = ($throwable instanceof RoutingException) ? new RouteNotFoundException($throwable) : $throwable;
+        $this->logger()->error($this->throwableToString($throwable));
 
         return match (true) {
             $throwable instanceof RoutingException        => $this->createRoutingExceptionResponse($throwable, $response),

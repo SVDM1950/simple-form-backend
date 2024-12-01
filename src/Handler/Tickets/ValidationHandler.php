@@ -8,7 +8,6 @@ use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
 use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
-use App\Validation\Rule\AtLeastOneTicketRule;
 use Rakit\Validation\RuleNotFoundException;
 use Rakit\Validation\Rules\In;
 use Rakit\Validation\Validator;
@@ -27,10 +26,7 @@ class ValidationHandler implements RequestHandler, ContainerAware
     {
         $data = $request->request->all();
 
-        $validator = new Validator();
-
-        // Registrieren Sie die benutzerdefinierte Regel
-        $validator->addValidator('at_least_one_ticket', new AtLeastOneTicketRule());
+        $validator = $this->validator();
 
         $eventIds = array_map(
             callback: fn($key) => (string) $key,
@@ -62,7 +58,10 @@ class ValidationHandler implements RequestHandler, ContainerAware
         $validation->validate();
 
         if ($validation->fails()) {
-            throw new ValidationException($validation->errors()->toArray(), Response::HTTP_UNPROCESSABLE_ENTITY);
+            throw new ValidationException(
+                $validation->errors()->toArray(),
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
         }
 
         return $handler->handle($request, $response);
@@ -73,4 +72,8 @@ class ValidationHandler implements RequestHandler, ContainerAware
         return $this->container[Config::class];
     }
 
+    protected function validator(): Validator
+    {
+        return $this->container[Validator::class];
+    }
 }

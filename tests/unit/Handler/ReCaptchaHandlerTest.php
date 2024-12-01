@@ -3,15 +3,16 @@
 namespace Tests\Unit\Handler;
 
 use App\Config;
-use App\Handler\Contact\ReCaptchaHandler;
 use App\Handler\Exception\RecaptchaException;
 use App\Handler\Exception\ValidationException;
+use App\Handler\ReCaptchaHandler;
 use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
 use Codeception\Test\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReCaptcha\ReCaptcha;
@@ -31,33 +32,40 @@ class ReCaptchaHandlerTest extends Unit
 {
     protected UnitTester $tester;
 
-    public function testImplementRequestHandlerInterface()
+    #[Test]
+    public function implementRequestHandlerInterface()
     {
         $interfaces = class_implements(ReCaptchaHandler::class);
         $this->assertContains(RequestHandler::class, $interfaces);
     }
 
-    public function testHasInvokeMethod()
+    #[Test]
+    public function hasInvokeMethod()
     {
         $this->assertTrue(method_exists(ReCaptchaHandler::class, '__invoke'));
     }
 
-    public function testImplementContainerAwareInterface()
+    #[Test]
+    public function implementContainerAwareInterface()
     {
         $interfaces = class_implements(ReCaptchaHandler::class);
         $this->assertContains(ContainerAware::class, $interfaces);
     }
 
-    public function testHasSetContainerMethod()
+    #[Test]
+    public function hasSetContainerMethod()
     {
         $this->assertTrue(method_exists(ReCaptchaHandler::class, 'setContainer'));
     }
 
     /**
      * @throws Exception
+     * @throws RecaptchaException
      * @throws ReflectionException
+     * @throws ValidationException
      */
-    public function testWithoutSiteKeyDoesNothing()
+    #[Test]
+    public function withoutSiteKeyDoesNothing()
     {
         $request = $this->createMock(Request::class);
         $request->request = new InputBag();
@@ -71,18 +79,25 @@ class ReCaptchaHandlerTest extends Unit
         $handler = $this->createMockWithoutMethods(ReCaptchaHandler::class, ['__invoke']);
         $handler->expects($this->never())->method('validate');
         $handler->expects($this->never())->method('verify');
+
+        $reflection = new \ReflectionClass($handler);
+        $reflection->getProperty('section')->setValue($handler, 'contact');
+
         $actualResponse = $handler($request, $response, $routingHandler);
 
         $this->assertInstanceOf(Response::class, $actualResponse);
         $this->assertEquals(0, $actualResponse->getStatusCode());
-        $this->assertEquals($response->getContent(), $actualResponse->getContent());
+        $this->assertEquals(null, $actualResponse->getContent());
     }
 
     /**
      * @throws Exception
+     * @throws RecaptchaException
      * @throws ReflectionException
+     * @throws ValidationException
      */
-    public function testWithSiteKeyCallsValidateAndVerify()
+    #[Test]
+    public function withSiteKeyCallsValidateAndVerify()
     {
         $request = $this->createMock(Request::class);
         $request->request = new InputBag();
@@ -94,8 +109,8 @@ class ReCaptchaHandlerTest extends Unit
 
         $config = $this->createMock(Config::class);
         $config->method('get')->willReturnMap([
-             ['recaptcha.siteKey', null, 'siteKey'],
-             ['recaptcha.enabled', null, true]
+             ['recaptcha.contact.siteKey', null, 'siteKey'],
+             ['recaptcha.contact.enabled', null, true]
         ]);
 
         /** @var MockObject&ReCaptchaHandler $handler */
@@ -103,16 +118,21 @@ class ReCaptchaHandlerTest extends Unit
         $handler->method('config')->willReturn($config);
         $handler->expects($this->once())->method('validate');
         $handler->expects($this->once())->method('verify');
+
+        $reflection = new \ReflectionClass($handler);
+        $reflection->getProperty('section')->setValue($handler, 'contact');
+
         $actualResponse = $handler($request, $response, $routingHandler);
 
-        $this->assertEquals($response->getContent(), $actualResponse->getContent());
+        $this->assertEquals(null, $actualResponse->getContent());
     }
 
     /**
      * @throws ReflectionException
      * @throws Exception
      */
-    public function testValidateWithInvalidDataWillThrowException()
+    #[Test]
+    public function validateWithInvalidDataWillThrowException()
     {
         $parameterName = 'g-recaptcha-response';
 
@@ -134,7 +154,8 @@ class ReCaptchaHandlerTest extends Unit
      * @throws ReflectionException
      * @throws Exception
      */
-    public function testValidateWithValidDataPasses()
+    #[Test]
+    public function validateWithValidDataPasses()
     {
         $parameterName = 'g-recaptcha-response';
 
@@ -156,7 +177,8 @@ class ReCaptchaHandlerTest extends Unit
      * @throws ReflectionException
      * @throws Exception
      */
-    public function testVerifyWithInvalidDataWillThrowException()
+    #[Test]
+    public function verifyWithInvalidDataWillThrowException()
     {
         $parameterName = 'g-recaptcha-response';
 
@@ -186,7 +208,8 @@ class ReCaptchaHandlerTest extends Unit
      * @throws Exception
      * @throws ReflectionException
      */
-    public function testVerifyWithValidDataPasses()
+    #[Test]
+    public function verifyWithValidDataPasses()
     {
         $parameterName = 'g-recaptcha-response';
 
