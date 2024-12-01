@@ -25,7 +25,7 @@ Bank: Ostsächsische Sparkasse Dresden
 IBAN: DE04 8505 0300 3120 1702 23
 Verwendungszweck: {{bestellnummer}}, {{name}}, {{event.datetime | datetime }}
 
-Spätester Zahlungseingang: {{event.datetime | week | date }} (1 Woche vor Veranstaltung)
+Spätester Zahlungseingang: {{event.datetime | lastPayDay | date }} (4 Tage vor Veranstaltung)
 
 Mit freundlichen Grüßen
 Dein SVDM-Team
