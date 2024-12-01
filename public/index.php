@@ -1,6 +1,6 @@
 <?php
 
-use App\MailApplication;
+use App\Application;
 use Dotenv\Dotenv;
 
 // error handling
@@ -17,6 +17,5 @@ try {
 } catch (ErrorException $e) {
 }
 
-$app = new MailApplication();
-$app->config()->loadConfigurationDirectory('config');
+$app = new Application('config');
 $app->run();

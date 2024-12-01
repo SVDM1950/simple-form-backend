@@ -19,6 +19,93 @@ class Config extends Repository
     public const string CONFIG_SEPARATOR = '.';
 
     /**
+     * Files to exclude from loading
+     */
+    private array $excludedFiles = [
+        '.gitignore',
+        '.gitkeep',
+        '.git',
+        '.svn',
+        '.DS_Store',
+        '.dockerignore'
+    ];
+
+    /**
+     * Add a file to the exclude list
+     */
+    public function addExclude(string $file): void
+    {
+        $this->excludedFiles[] = $file;
+    }
+
+    /**
+     * Add multiple files to the exclude list
+     */
+    public function addExcludes(string|array ...$files): void
+    {
+        if(count($files) === 1 && is_array($files[0])) {
+            $files = $files[0];
+        }
+
+        $this->excludedFiles = array_merge($this->excludedFiles, $files);
+    }
+
+    /**
+     * Remove a file from the exclude list
+     */
+    public function removeExclude(string $file): void
+    {
+        $key = array_search($file, $this->excludedFiles, true);
+        if ($key !== false) {
+            unset($this->excludedFiles[$key]);
+        }
+    }
+
+    /**
+     * Remove multiple files from the exclude list
+     */
+    public function removeExcludes(string|array ...$files): void
+    {
+        if(count($files) === 1 && is_array($files[0])) {
+            $files = $files[0];
+        }
+
+        $this->excludedFiles = array_diff($this->excludedFiles, $files);
+    }
+
+    /**
+     * Check if a file is excluded
+     */
+    public function hasExclude(string $file): bool
+    {
+        return in_array($file, $this->excludedFiles, true);
+    }
+
+    /**
+     * Get all excluded files
+     */
+    public function getExcluded(): array
+    {
+        return $this->excludedFiles;
+    }
+
+    /**
+     * Set all excluded files
+     */
+    public function setExcluded(array $excluded): void
+    {
+        $this->excludedFiles = $excluded;
+    }
+
+    /**
+     * Clear all excluded files
+     */
+    public function clearExcluded(): void
+    {
+        $this->excludedFiles = [];
+    }
+
+    /**
      * Load config from path
      */
     public function loadConfigurationFile(string $configPath, string $prefix = null): void
@@ -43,7 +130,9 @@ class Config extends Repository
         foreach (new DirectoryIterator($directory) as $file) {
             if ($file->isDot()) {
                 continue;
-            } elseif ($file->isFile() and $file->isReadable()) {
+            } elseif (in_array($file->getFilename(), $this->excludedFiles, true)) {
+                continue;
+            } elseif ($file->isFile() && $file->isReadable()) {
                 $this->loadConfigurationFile($file->getPathname(), $prefix);
             } elseif ($file->isDir() && $recursive) {
                 $dirPrefix = (isset($prefix))

@@ -1,0 +1,35 @@
+contact:
+  method: POST
+  path: /contact
+  handlers:
+    - App\Handler\EmptyBodyRequestHandler
+    - App\Handler\JsonRequestHandler
+    - App\Handler\Contact\ReCaptchaHandler
+    - App\Handler\Contact\ValidationHandler
+    - App\Handler\Contact\RenderTemplateHandler
+    - App\Handler\Contact\MailHandler
+    - App\Handler\Contact\FinishHandler
+
+tickets:
+  method: POST
+  path: /tickets
+  handlers:
+    - App\Handler\EmptyBodyRequestHandler
+    - App\Handler\JsonRequestHandler
+    - App\Handler\Tickets\ReCaptchaHandler
+    - App\Handler\Tickets\ValidationHandler
+    - App\Handler\Tickets\RenderTemplateHandler
+    - App\Handler\Tickets\MailHandler
+    - App\Handler\Tickets\FinishHandler
+
+tickets_events:
+  method: GET
+  path: /tickets/events
+  handlers:
+    - App\Handler\Tickets\EventsListHandler
+
+tickets_tickets:
+  method: GET
+  path: /tickets/tickets
+  handlers:
+    - App\Handler\Tickets\TicketsListHandler

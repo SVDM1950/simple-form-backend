@@ -1,0 +1,16 @@
+family:
+    name: 'Familie'
+    price: 16.0
+    note: '2 Erw. + 1 Kind oder 1 Erw. + 2 Kinder'
+adult:
+    name: 'Erwachsener'
+    price: 8.0
+    note: ~
+child:
+    name: 'Kinder / Schüler'
+    price: 5.0
+    note: ~
+chgroup:
+    name: 'Kindergruppe (pro Kind)'
+    price: 4.0
+    note: 'ab 10 Personen / 1 Betreuer pro 10 Kinder frei'

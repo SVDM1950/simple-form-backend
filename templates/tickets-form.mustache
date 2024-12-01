@@ -1,0 +1,31 @@
+Hallo {{name}},
+
+vielen Dank, dass Du Karten für unser diesjähriges Weihnachtsmärchen bestellt hast.
+
+Veranstaltungdetails:
+
+Ort: {{event.name}}
+Zeitpunkt {{event.datetime | datetime }}
+
+Karten:
+
+{{#tickets}}
+{{amount}} x {{name}} (je €{{price | currency}})
+{{/tickets}}
+
+{{#message}}
+Nachricht:
+{{message}}
+
+{{/message}}
+Bitte überweise den Betrag von €{{total | currency}} für Deine Karten auf folgendes Konto:
+
+Kontoinhaber: Sportverein Dresden-Mitte 1950 e.V.
+Bank: Ostsächsische Sparkasse Dresden
+IBAN: DE04 8505 0300 3120 1702 23
+Verwendungszweck: {{bestellnummer}}, {{name}}, {{event.datetime | datetime }}
+
+Spätester Zahlungseingang: {{event.datetime | week | date }} (1 Woche vor Veranstaltung)
+
+Mit freundlichen Grüßen
+Dein SVDM-Team
