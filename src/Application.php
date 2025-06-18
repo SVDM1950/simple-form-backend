@@ -14,6 +14,7 @@ use function file_exists;
 use function is_dir;
 use function is_readable;
 use function is_string;
+use Rakit\Validation\Validator;
 
 class Application
 {
@@ -57,7 +58,11 @@ class Application
             if (array_key_exists('factory', $service)) {
                 $factoryClass = $service['factory'];
                 try {
-                    $this->container[$serviceId] = (new $factoryClass($this->container))(...$arguments);
+                    $factory = new $factoryClass($this->container);
+                    $service = $factory(...$arguments);
+                    if (!is_null($service)) {
+                        $this->container[$serviceId] = $service;
+                    }
                 } catch (Exception $exception) {
                     throw new Exception(
                         "Service '$serviceId' could not be created: {$exception->getMessage()}",
@@ -125,6 +130,7 @@ class Application
         $response->send();
 
         return $response;
+        return new Response();
     }
 
     /**

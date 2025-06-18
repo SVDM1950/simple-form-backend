@@ -9,10 +9,11 @@ use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
 use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
-use Rakit\Validation\Validator;
+use App\Validation\Validator;
 use ReCaptcha\ReCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
 
 class ReCaptchaHandler implements RequestHandler, ContainerAware
 {
@@ -77,6 +78,11 @@ class ReCaptchaHandler implements RequestHandler, ContainerAware
 
     protected function reCaptcha(): ReCaptcha
     {
-        return $this->container["recaptcha.{${$this->section}}"];
+        return $this->container["recaptcha.{$this->section}"];
+    }
+
+    public function logger(): LoggerInterface
+    {
+        return $this->container[$this->config()->get('services.logger.class')];
     }
 }

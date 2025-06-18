@@ -10,6 +10,8 @@ use App\Routing\Interface\RoutingHandler;
 use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
 use FilterGuard\FilterGuard;
 use JsonException;
+use Mustache_Engine;
+use Mustache_Exception;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +43,14 @@ class MailHandler implements RequestHandler, ContainerAware
             $mailer->addAddress($request->get('email'), FilterGuard::sanitizeString($request->get('name')));
 
             // Sending plain text email
+            $mustache = $this->mustache();
             $mailer->isHTML(false); // Set email format to plain text
-            $mailer->Subject = FilterGuard::sanitizeString($this->config()->get("mail.{$this->section}.subject"));
+            $mailer->Subject = $mustache->render(
+                FilterGuard::sanitizeString($this->config()->get("mail.{$this->section}.subject")),
+                [
+                    'bestellnummer' => $content['id'],
+                ]
+            );
             $mailer->Body = $content['message'];
 
             if (!$mailer->send()) {
@@ -63,5 +71,10 @@ class MailHandler implements RequestHandler, ContainerAware
     protected function config(): Config
     {
         return $this->container[Config::class];
+    }
+
+    protected function mustache(): Mustache_Engine
+    {
+        return $this->container[Mustache_Engine::class];
     }
 }

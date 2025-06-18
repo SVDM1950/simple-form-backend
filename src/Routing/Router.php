@@ -150,7 +150,11 @@ class Router extends RouteCollector
     public function handleCaughtThrowable(Throwable $throwable, Response $response): Response
     {
         $throwable = ($throwable instanceof RoutingException) ? new RouteNotFoundException($throwable) : $throwable;
-        $this->logger()->error($this->throwableToString($throwable));
+        $this->logger()->error(json_encode([
+            'type' => $throwable instanceof RequestHandlerException ? $throwable->getType() : 'general',
+            'errors' => [$this->throwableToString($throwable)], 
+            'stack' => $throwable->getTraceAsString()
+        ]));
 
         return match (true) {
             $throwable instanceof RoutingException        => $this->createRoutingExceptionResponse($throwable, $response),
@@ -167,7 +171,7 @@ class Router extends RouteCollector
     {
         $responseClass = $response::class;
         return new $responseClass(
-            ['type' => 'general', 'errors' => [$exception->getMessage()]],
+            ['type' => 'general', 'errors' => [$exception->getMessage()], 'stack' => $exception->getTraceAsString()],
             status: $exception->getCode(),
             headers: $response->headers->all(),
         );
@@ -211,7 +215,7 @@ class Router extends RouteCollector
     {
         $responseClass = $response::class;
         return new $responseClass(
-            ['type' => $exception->getType(), 'errors' => $exception->getErrors()],
+            ['type' => $exception->getType(), 'errors' => $exception->getErrors(), 'stack' => $exception->getTraceAsString()],
             status: Response::HTTP_BAD_REQUEST,
             headers: $response->headers->all(),
         );
@@ -224,7 +228,7 @@ class Router extends RouteCollector
     {
         $responseClass = $response::class;
         return new $responseClass(
-            ['type' => 'general', 'errors' => [$this->throwableToString($exception)]],
+            ['type' => 'general', 'errors' => [$this->throwableToString($exception)], 'stack' => $exception->getTraceAsString()],
             status: $exception instanceof AbstractInternalError ? $exception->getResponseCode() : 500,
             headers: $response->headers->all(),
         );

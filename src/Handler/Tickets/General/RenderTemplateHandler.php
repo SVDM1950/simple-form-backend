@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handler\Tickets;
+namespace App\Handler\Tickets\General;
 
 use App\Config;
 use App\Handler\Exception\TemplateRenderException;
@@ -52,13 +52,19 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
     {
         $events = $this->config()->get('events');
 
-        $tickets = array_values(ArrayUtils::map(
+        $tickets = ArrayUtils::map(
             callback: function ($key, $value) use ($request) {
+                if ($value['school']) {
+                    return null; // Skip tickets that are for schools
+                }
+
+                unset($value['school']);
+
                 $value['amount'] = FilterGuard::sanitizeString($request->get('tickets')[$key]);
                 return $value;
             },
             array: $this->config()->get('tickets')
-        ));
+        );
 
         $total = array_reduce($tickets, fn($total, $ticket) => $total + ($ticket['amount'] * $ticket['price']));
 
@@ -66,7 +72,7 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
             'name' => FilterGuard::sanitizeString($request->get('name')),
             'event' => $events[FilterGuard::sanitizeString($request->get('event'))],
             'message' => FilterGuard::sanitizeString($request->get('message')),
-            'tickets' => $tickets,
+            'tickets' => array_values($tickets),
             'bestellnummer' => $orderId,
             'total' => $total,
         ];

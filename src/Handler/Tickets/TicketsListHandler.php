@@ -16,6 +16,10 @@ class TicketsListHandler implements RequestHandler, ContainerAware
 {
     use ContainerAwareTrait;
 
+    public function __construct(protected bool $school = false)
+    {
+    }
+
     /**
      * @param JsonResponse $response
      */
@@ -23,6 +27,12 @@ class TicketsListHandler implements RequestHandler, ContainerAware
     {
         $response->setData(ArrayUtils::map(
             function($key, $value) {
+                if ($value['school'] !== $this->school) {
+                    return null; // Skip tickets that are not for this school mode
+                }
+
+                unset($value['school']);
+
                 $value['id'] = $key;
                 return $value;
             },

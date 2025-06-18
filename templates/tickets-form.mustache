@@ -1,31 +1,35 @@
-Hallo {{name}},
+Sehr geehrte/r {{name}},
 
-vielen Dank, dass Du Karten für unser diesjähriges Weihnachtsmärchen bestellt hast.
+wir bedanken uns herzlich für Ihre Kartenbestellung für unser diesjähriges Weihnachtsmärchen und freuen uns, Sie bei dieser besonderen Veranstaltung begrüßen zu dürfen.
 
-Veranstaltungdetails:
+Veranstaltungsdetails:
 
-Ort: {{event.name}}
-Zeitpunkt {{event.datetime | datetime }}
+Veranstaltungsort: {{event.name}}
+Datum und Uhrzeit: {{event.datetime | datetime }}
 
-Karten:
+Bestellte Karten:
 
 {{#tickets}}
 {{amount}} x {{name}} (je €{{price | currency}})
 {{/tickets}}
 
 {{#message}}
-Nachricht:
+Ihre Nachricht:
 {{message}}
 
 {{/message}}
-Bitte überweise den Betrag von €{{total | currency}} für Deine Karten auf folgendes Konto:
+
+Referenznummer: {{bestellnummer}}
+Gesamtbetrag: €{{total | currency}}
+
+Bitte überweisen Sie den Betrag auf folgendes Konto:
 
 Kontoinhaber: Sportverein Dresden-Mitte 1950 e.V.
 Bank: Ostsächsische Sparkasse Dresden
 IBAN: DE04 8505 0300 3120 1702 23
 Verwendungszweck: {{bestellnummer}}, {{name}}, {{event.datetime | datetime }}
 
-Spätester Zahlungseingang: {{event.datetime | lastPayDate }} (4 Tage vor Veranstaltung)
+Zahlungsfrist: {{event.datetime | lastPayDate }} (4 Tage vor der Veranstaltung)
 
 Mit freundlichen Grüßen
-Dein SVDM-Team
+Das Team des Sportvereins Dresden-Mitte 1950 e.V.

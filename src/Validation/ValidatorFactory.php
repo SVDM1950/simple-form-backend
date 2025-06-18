@@ -7,7 +7,6 @@ use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
 use App\Validation\Rule\AtLeastOneTicketRule;
 use Pimple\Container;
 use Rakit\Validation\RuleQuashException;
-use Rakit\Validation\Validator;
 
 class ValidatorFactory implements ContainerAware
 {

@@ -15,7 +15,7 @@ class ArrayUtils
         $keys = array_keys($array);
         $items = array_map($callback, array_keys($array), array_values($array));
 
-        return array_combine($keys, $items) ;
+        return array_filter(array_combine($keys, $items));
     }
 
     /**

@@ -2,34 +2,84 @@
   name: 'Margon Arena (PREMIERE)'
   datetime: '2024-12-08 16:00'
   sold: false
-  closed: false
+  closed: true
+  visible: false
 "202412090900":
   name: 'Margon Arena'
   datetime: '2024-12-09 09:00'
   sold: false
-  closed: false
+  closed: true
+  visible: false
 "202412091045":
   name: 'Margon Arena'
   datetime: '2024-12-09 10:45'
   sold: false
-  closed: false
+  closed: true
+  visible: false
 "202412151430":
   name: 'Lößnitzsporthalle'
   datetime: '2024-12-15 14:30'
   sold: false
-  closed: false
+  closed: true
+  visible: false
 "202412151630":
   name: 'Lößnitzsporthalle'
   datetime: '2024-12-15 16:30'
   sold: false
-  closed: false
+  closed: true
+  visible: false
 "202412160900":
   name: 'Lößnitzsporthalle'
   datetime: '2024-12-16 09:00'
   sold: true
-  closed: false
+  closed: true
+  visible: false
 "202412161045":
   name: 'Lößnitzsporthalle'
   datetime: '2024-12-16 10:45'
   sold: false
+  closed: true
+  visible: false
+
+"202512071600":
+  name: 'Margon Arena (PREMIERE)'
+  datetime: '2025-12-07 16:00'
+  sold: false
   closed: false
+  visible: true
+"202512080900":
+  name: 'Margon Arena'
+  datetime: '2025-12-08 09:00'
+  sold: false
+  closed: false
+  visible: true
+"202512081045":
+  name: 'Margon Arena'
+  datetime: '2025-12-08 10:45'
+  sold: false
+  closed: false
+  visible: true
+"202512141430":
+  name: 'Lößnitzsporthalle'
+  datetime: '2025-12-14 14:30'
+  sold: false
+  closed: false
+  visible: true
+"202512141630":
+  name: 'Lößnitzsporthalle'
+  datetime: '2025-12-14 16:30'
+  sold: false
+  closed: false
+  visible: true
+"202512150900":
+  name: 'Lößnitzsporthalle'
+  datetime: '2025-12-15 09:00'
+  sold: false
+  closed: false
+  visible: true
+"202512151045":
+  name: 'Lößnitzsporthalle'
+  datetime: '2025-12-15 10:45'
+  sold: false
+  closed: false
+  visible: true
