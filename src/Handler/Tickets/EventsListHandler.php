@@ -23,6 +23,12 @@ class EventsListHandler implements RequestHandler, ContainerAware
     {
         $response->setData(ArrayUtils::map(
             function($key, $value) {
+                if(!$value['visible']) {
+                    return null; // Skip events that are not visible
+                }
+
+                unset($value['visible']);
+
                 $value['id'] = $key;
                 return $value;
             },

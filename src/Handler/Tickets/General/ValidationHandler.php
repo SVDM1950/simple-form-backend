@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Handler\Tickets;
+namespace App\Handler\Tickets\General;
 
 use App\Config;
 use App\Handler\Exception\ValidationException;
+use App\Helper\ArrayUtils;
 use App\Routing\Interface\ContainerAware;
 use App\Routing\Interface\RequestHandler;
 use App\Routing\Interface\RoutingHandler;
 use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
 use Rakit\Validation\RuleNotFoundException;
 use Rakit\Validation\Rules\In;
-use Rakit\Validation\Validator;
+use App\Validation\Validator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,19 +29,31 @@ class ValidationHandler implements RequestHandler, ContainerAware
 
         $validator = $this->validator();
 
-        $eventIds = array_map(
-            callback: fn($key) => (string) $key,
-            array: array_keys($this->config()->get('events'))
-        );
+        $eventIds = array_values(ArrayUtils::map(
+            callback: function($key, $value) {
+                if(!$value['visible']) {
+                    return null; // Skip events that are not visible
+                }
+
+                return (string) $key;
+            },
+            array: $this->config()->get('events')
+        ));
 
         /** @var In $eventValidator */
-        $eventValidator = $validator('in', $eventIds);
+        $eventValidator = $validator->invoke('in', $eventIds);
         $eventValidator->strict();
 
-        $ticketIds = array_map(
-            callback: fn($key) => (string) $key,
-            array: array_keys($this->config()->get('tickets'))
-        );
+        $ticketIds = array_values(ArrayUtils::map(
+            callback: function ($key, $value) {
+                if ($value['school']) {
+                    return null; // Skip tickets that are not for schools
+                }
+                
+                return $key;
+            },
+            array: $this->config()->get('tickets')
+        ));
 
         $ruleSet = [
             'name' => 'required|min:3',

@@ -1,0 +1,36 @@
+Sehr geehrte/r {{teacher}},
+
+wir bedanken uns herzlich für Ihre Kartenreservierung für unser diesjähriges Weihnachtsmärchen und freuen uns, Ihre Schulklasse bei dieser besonderen Veranstaltung begrüßen zu dürfen.
+
+Reservierungsdetails:
+
+Veranstaltungsort: {{event.name}}
+Datum und Uhrzeit: {{event.datetime | datetime }}
+
+Bildungseinrichtung: {{name}}
+Klasse: {{class}}
+Ansprechpartner: {{teacher}}
+Anzahl der Betreuer: {{supervisors}}
+
+Reservierte Karten:
+
+{{#tickets}}
+{{amount}} x {{name}} (je €{{price | currency}})
+{{/tickets}}
+
+{{#message}}
+Ihre Nachricht:
+{{message}}
+
+{{/message}}
+
+Referenznummer: {{bestellnummer}}
+Gesamtbetrag: €{{total | currency}}
+(Freikarten für {{free}} Betreuer wurden vom Gesamtbetrag abgezogen)
+
+Sollten Sie dies nicht bereits in Ihrer Nachricht erwähnt haben, bitten wir Sie, uns bei Bedarf die Anzahl der Rollstuhlfahrer in Ihrer Gruppe mitzuteilen, damit wir die entsprechenden Plätze für Sie reservieren können.
+
+Die Abwicklung der Bezahlung erfolgt bis zu den Herbstferien. Wir werden uns diesbezüglich rechtzeitig mit Ihnen in Verbindung setzen.
+
+Mit freundlichen Grüßen
+Das Team des Sportvereins Dresden-Mitte 1950 e.V.

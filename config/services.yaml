@@ -18,7 +18,7 @@ snowflake:
   class: Godruoyi\Snowflake\Snowflake
 
 validator:
-  class: Rakit\Validation\Validator
+  class: App\Validation\Validator
   factory: App\Validation\ValidatorFactory
 
 mustache:

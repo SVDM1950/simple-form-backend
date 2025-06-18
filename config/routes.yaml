@@ -23,8 +23,8 @@ tickets:
     - class: App\Handler\ReCaptchaHandler
       arguments:
         - 'tickets'
-    - App\Handler\Tickets\ValidationHandler
-    - App\Handler\Tickets\RenderTemplateHandler
+    - App\Handler\Tickets\General\ValidationHandler
+    - App\Handler\Tickets\General\RenderTemplateHandler
     - class: App\Handler\MailHandler
       arguments:
         - 'tickets'
@@ -41,3 +41,33 @@ tickets_tickets:
   path: /tickets/tickets
   handlers:
     - App\Handler\Tickets\TicketsListHandler
+
+school_tickets:
+  method: POST
+  path: /school/tickets
+  handlers:
+    - App\Handler\EmptyBodyRequestHandler
+    - App\Handler\JsonRequestHandler
+    - class: App\Handler\ReCaptchaHandler
+      arguments:
+        - 'tickets'
+    - App\Handler\Tickets\School\ValidationHandler
+    - App\Handler\Tickets\School\RenderTemplateHandler
+    - class: App\Handler\MailHandler
+      arguments:
+        - 'tickets'
+    - App\Handler\Tickets\FinishHandler
+
+school_tickets_events:
+  method: GET
+  path: /school/tickets/events
+  handlers:
+    - App\Handler\Tickets\EventsListHandler
+
+school_tickets_tickets:
+  method: GET
+  path: /school/tickets/tickets
+  handlers:
+    - class: App\Handler\Tickets\TicketsListHandler
+      arguments:
+        - true

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handler\Tickets;
+namespace App\Handler\Tickets\School;
 
 use App\Config;
 use App\Handler\Exception\TemplateRenderException;
@@ -21,6 +21,10 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
 {
     use ContainerAwareTrait;
 
+    public function __construct(protected bool $school = false)
+    {
+    }
+
     /**
      * @param JsonResponse $response
      * @throws TemplateRenderException
@@ -32,7 +36,7 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
 
             $mustache = $this->mustache();
 
-            $template = $mustache->loadTemplate('tickets-form');
+            $template = $mustache->loadTemplate('school-tickets-form');
 
             $content = $template->render($this->data($request, $orderId));
 
@@ -52,23 +56,35 @@ class RenderTemplateHandler implements RequestHandler, ContainerAware
     {
         $events = $this->config()->get('events');
 
-        $tickets = array_values(ArrayUtils::map(
+        $tickets = ArrayUtils::map(
             callback: function ($key, $value) use ($request) {
+                if (!$value['school']) {
+                    return null; // Skip tickets that are not for schools
+                }
+
+                unset($value['school']);
+
                 $value['amount'] = FilterGuard::sanitizeString($request->get('tickets')[$key]);
                 return $value;
             },
             array: $this->config()->get('tickets')
-        ));
+        );
 
-        $total = array_reduce($tickets, fn($total, $ticket) => $total + ($ticket['amount'] * $ticket['price']));
+        $free = min($tickets['supervisors']['amount'], floor($tickets['students']['amount'] / 10));
+        $total = $tickets['students']['amount'] * $tickets['students']['price'];
+        $total+= ($tickets['supervisors']['amount'] - $free) * $tickets['supervisors']['price'];
 
         return (object)[
             'name' => FilterGuard::sanitizeString($request->get('name')),
+            'teacher' => FilterGuard::sanitizeString($request->get('teacher')),
+            'class' => FilterGuard::sanitizeString($request->get('class')),
             'event' => $events[FilterGuard::sanitizeString($request->get('event'))],
             'message' => FilterGuard::sanitizeString($request->get('message')),
-            'tickets' => $tickets,
+            'tickets' => array_values($tickets),
             'bestellnummer' => $orderId,
             'total' => $total,
+            'supervisors' => $tickets['supervisors']['amount'],
+            'free' => $free,
         ];
     }
 

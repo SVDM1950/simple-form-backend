@@ -13,10 +13,7 @@ set_error_handler(
 chdir(__DIR__ . '/..');
 require 'vendor/autoload.php';
 
-try {
-    (Dotenv::createImmutable(__DIR__ . '/../', ['.env', '.env.local'], false))->safeLoad();
-} catch (ErrorException $e) {
-}
+(Dotenv::createImmutable(__DIR__ . '/..', ['.env', '.env.local'], false))->safeLoad();
 
 try {
     $app = new Application('config');

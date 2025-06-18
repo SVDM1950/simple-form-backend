@@ -6,7 +6,7 @@ use App\Routing\Interface\ContainerAware;
 use App\Routing\Trait\ContainerAware as ContainerAwareTrait;
 use DateTime;
 use Mustache_Engine;
-use Mustache_Loader_FilesystemLoader;
+use App\Mustache\StringOrFilesystemLoader;
 use Pimple\Container;
 
 class MustacheFactory implements ContainerAware
@@ -22,8 +22,8 @@ class MustacheFactory implements ContainerAware
         return new Mustache_Engine([
             'entity_flags' => ENT_QUOTES,
             # 'cache' => dirname(__FILE__).'/../var/cache/mustache',
-            'loader' => new Mustache_Loader_FilesystemLoader('templates'),
-            'partials_loader' => new Mustache_Loader_FilesystemLoader('templates/partials'),
+            'loader' => new StringOrFilesystemLoader('templates'),
+            'partials_loader' => new StringOrFilesystemLoader('templates/partials'),
             # 'logger' => $this->logger(),
             'charset' => 'UTF-8',
             'strict_callables' => true,

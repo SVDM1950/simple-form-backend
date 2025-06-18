@@ -2,15 +2,29 @@ family:
     name: 'Familie'
     price: 16.0
     note: '2 Erw. + 1 Kind oder 1 Erw. + 2 Kinder'
+    school: false
 adult:
     name: 'Erwachsener'
     price: 8.0
     note: ~
+    school: false
 child:
     name: 'Kinder / Schüler'
     price: 5.0
     note: ~
+    school: false
 chgroup:
     name: 'Kindergruppe (pro Kind)'
     price: 4.0
     note: 'ab 10 Personen / 1 Betreuer pro 10 Kinder frei'
+    school: false
+students:
+    name: 'Schüler (pro Kind)'
+    price: 4.0
+    note: 'ab 10 Personen / 1 Betreuer pro 10 Kinder frei'
+    school: true
+supervisors:
+    name: 'Betreuer'
+    price: 8.0
+    note: '1 Betreuer pro 10 Kinder frei'
+    school: true
